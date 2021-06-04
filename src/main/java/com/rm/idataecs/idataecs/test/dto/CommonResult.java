@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @program: idataecs
- * @description:
+ * @description: 封账后端通用返回信息体
  * @author: xumeng.zhao
  * @create: 2021-06-03 15:34
  */

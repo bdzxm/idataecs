@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rm.idataecs.idataecs.monitor.mapper.CreateOrUpdateMonitorConfigMapper">
+    <!--通过表名查找返回list集合 -->
+   <select id="getMonitorByTableName" parameterType="String" resultType="com.rm.idataecs.idataecs.monitor.entity.MonitorConfigEntity">
+       select
+       *
+       from test.dataM_meta_conf where table_name=#{table_name}
+   </select>
+
+
+
+</mapper>

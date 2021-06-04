@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rm.idataecs.idataecs.test.mapper.UserMapper">
+    <insert id="insertUser2" parameterType="com.rm.idataecs.idataecs.test.dto.User" useGeneratedKeys="true" keyProperty="id">
+insert into user(`name`,age,email,gender) values(#{name},#{age},#{email},#{gender})
+</insert>
+
+    <resultMap id="us" type="com.rm.idataecs.idataecs.test.dto.User" >
+        <!--column 代表的是表的字段名 property 是pojo类的字段名  -->
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <!-- 下面这个 property 是 上面pojo类里面引用的下面这个类的字段名 javatype 就是 这个类-->
+        <association property="addition" javaType="com.rm.idataecs.idataecs.test.dto.Addition">
+            <id column="id" property="id"/>
+            <result column="address" property="address"/>
+        </association>
+    </resultMap>
+  <!-- 这里要用 resultMap 而不是resultType-->
+    <select id="selectAll" resultMap="us">
+
+        select
+        *
+        from user as a
+        left join addition as b on a.id = b.id
+
+
+    </select>
+
+
+
+</mapper>

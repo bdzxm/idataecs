@@ -50,18 +50,4 @@ public class MonitorConfigEntity {
     private int incrementCheck;
 
 
-
-//    public MonitorConfigEntity(MonitorConfigDTO mc) {
-//        this.id = mc.getId();
-//        this.dt = mc.getDt();
-//        this.tableName = mc.getTableName();
-//        this.generalCheck = (String) mc.getGeneralCheck();
-//        this.sqlCheck = (String) mc.getSqlCheck();
-//        this.repeatedCheck = mc.getRepeatedCheck();
-//        this.numCheck = mc.getNumCheckEnum().getCode();
-//        this.incrementCheck = mc.getIncrementCheckEnum().getCode();
-//        this.status = 1;
-//        this.createTime=mc.getTime();
-//
-//    }
 }

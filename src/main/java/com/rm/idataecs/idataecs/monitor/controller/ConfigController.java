@@ -23,6 +23,11 @@ public class ConfigController {
      @Autowired
     CreateMonitorConfigService createMonitorConfigServiceImpl;
 
+    /**
+     * create
+     * @param mc
+     * @return
+     */
     @PostMapping("/createTableMonitorConfig")
     public CommonResult createTableMonitorConfig(@RequestBody MonitorConfigDTO mc){
         log.error("MonitorConfigDTO:{}",mc);

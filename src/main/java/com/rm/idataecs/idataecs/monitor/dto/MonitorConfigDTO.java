@@ -18,11 +18,17 @@ public class MonitorConfigDTO {
     private String dt;
 
     private String tableName;
-
+    /**
+     * 普通检测，json
+     */
     private Object generalCheck;
-
+    /**
+     * 自定义sql
+     */
     private Object sqlCheck;
-
+    /**
+     * 时间 后端赋值
+     */
     private String time;
 
 

@@ -64,14 +64,22 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
             return fcr;
         }
         String gc = JSONObject.toJSONString(mc.getGeneralCheck());
-        String sqlJson = JSONObject.toJSONString(mc.getSqlCheck());
+//        String sqlJson = JSONObject.toJSONString(mc.getSqlCheck());
         mc.setGeneralCheck(gc);
-        mc.setSqlCheck(sqlJson);
+//        mc.setSqlCheck(sqlJson);
         mc.setTime(CommnUtils.getCurrentTime());
         MonitorConfigEntity monitorConfigEntity = this.init(mc);
         //TODO 事务控制
         this.save(monitorConfigEntity);
-        CommonResult scr = scheduleImpl.createSchedule(monitorConfigEntity, scheduler);
+        CommonResult scr = new CommonResult(ResultStatus.Success.getCode(),"提交成功",monitorConfigEntity);
+        System.out.println(monitorConfigEntity.getSqlCheck());
+        System.out.println(StringUtils.isBlank(monitorConfigEntity.getSqlCheck()));
+        System.out.println(monitorConfigEntity.getSqlCheck().length());
+        if(StringUtils.isNotBlank(monitorConfigEntity.getSqlCheck())){
+
+             scr = scheduleImpl.createSchedule(monitorConfigEntity, scheduler);
+        }
+
 
 //        SendMessageEntity sme = (SendMessageEntity)mesImpl.send2WX(new SendMessageEntity(mc.getTableName(), CommonConstants.SUCCESS_MSG));
 

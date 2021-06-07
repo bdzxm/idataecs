@@ -2,6 +2,7 @@ package com.rm.idataecs.idataecs.monitor.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.rm.idataecs.idataecs.Job.MonitorJob;
 import com.rm.idataecs.idataecs.adapter.IdataEcsMesImplFactory;
 import com.rm.idataecs.idataecs.adapter.IdataEcsMesInterface;
 import com.rm.idataecs.idataecs.adapter.JobScheduleImplFactory;
@@ -18,7 +19,9 @@ import com.rm.idataecs.idataecs.monitor.service.CreateMonitorConfigService;
 import com.rm.idataecs.idataecs.util.CommnUtils;
 import com.rm.idataecs.idataecs.util.CommonException;
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,19 +45,23 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
     @Autowired
     IdataEcsMesImplFactory idataEcsMesImplFactory;
 
+    @Autowired
+    Scheduler scheduler;
+
 
     @Override
     public CommonResult createOrUpdateMonitorConfig(MonitorConfigDTO mc) {
 
         JobScheduleInterface scheduleImpl = jobScheduleImplFactory.getJobScheduleImpl();
 
-        IdataEcsMesInterface mesImpl = idataEcsMesImplFactory.getIdataEcsMesImpl("upush");
+//        IdataEcsMesInterface mesImpl = idataEcsMesImplFactory.getIdataEcsMesImpl("upush");
 
-        CommonResult commonResult = this.paramCheck(mc);
         //参数审查
-        if (StringUtils.isNotBlank(commonResult.getMsg())) {
-            commonResult.setCode(ResultStatus.fail.getCode());
-            return commonResult;
+        CommonResult fcr = this.paramCheck(mc);
+
+        if (StringUtils.isNotBlank(fcr.getMsg())) {
+            fcr.setCode(ResultStatus.fail.getCode());
+            return fcr;
         }
         String gc = JSONObject.toJSONString(mc.getGeneralCheck());
         String sqlJson = JSONObject.toJSONString(mc.getSqlCheck());
@@ -62,12 +69,13 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
         mc.setSqlCheck(sqlJson);
         mc.setTime(CommnUtils.getCurrentTime());
         MonitorConfigEntity monitorConfigEntity = this.init(mc);
-
         //TODO 事务控制
         this.save(monitorConfigEntity);
-        CommonException schedule = scheduleImpl.createSchedule(monitorConfigEntity);
-        SendMessageEntity sme = (SendMessageEntity)mesImpl.send2WX(new SendMessageEntity(mc.getTableName(), CommonConstants.SUCCESS_MSG));
-        return new CommonResult(ResultStatus.Success.getCode(),sme.getMsgException(), CommonConstants.SUCCESS_MSG, schedule);
+        CommonResult scr = scheduleImpl.createSchedule(monitorConfigEntity, scheduler);
+
+//        SendMessageEntity sme = (SendMessageEntity)mesImpl.send2WX(new SendMessageEntity(mc.getTableName(), CommonConstants.SUCCESS_MSG));
+
+        return scr;
     }
 
     @Override
@@ -109,6 +117,7 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
         return commonResult;
 
     }
+
 
 
 }

@@ -1,7 +1,9 @@
 package com.rm.idataecs.idataecs.adapter;
 
 import com.rm.idataecs.idataecs.monitor.entity.MonitorConfigEntity;
+import com.rm.idataecs.idataecs.test.dto.CommonResult;
 import com.rm.idataecs.idataecs.util.CommonException;
+import org.quartz.Scheduler;
 
 /**
  * 调度任务适配器接口
@@ -14,28 +16,28 @@ public interface JobScheduleInterface {
      * @param monitorConfigEntity
      * @return
      */
-    CommonException createSchedule(MonitorConfigEntity monitorConfigEntity);
+    CommonResult createSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler);
 
     /**
      * 更新
      * @param monitorConfigEntity
      * @return
      */
-    CommonException updateSchedule(MonitorConfigEntity monitorConfigEntity);
+    CommonResult updateSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler);
 
     /**
      * 删除
      * @param monitorConfigEntity
      * @return
      */
-    CommonException deleteSchedule(MonitorConfigEntity monitorConfigEntity);
+    CommonResult deleteSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler);
 
     /**
      * 暂停监控
      * @param monitorConfigEntity
      * @return
      */
-    CommonException stopSchedule(MonitorConfigEntity monitorConfigEntity);
+    CommonResult stopSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler);
 
 
 }

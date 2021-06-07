@@ -1,9 +1,12 @@
 package com.rm.idataecs.idataecs.adapter.impl;
 
+import com.rm.idataecs.idataecs.Job.MonitorJob;
 import com.rm.idataecs.idataecs.adapter.JobScheduleInterface;
+import com.rm.idataecs.idataecs.constants.ResultStatus;
 import com.rm.idataecs.idataecs.monitor.entity.MonitorConfigEntity;
-import com.rm.idataecs.idataecs.util.CommonException;
-import org.springframework.stereotype.Repository;
+import com.rm.idataecs.idataecs.test.dto.CommonResult;
+import org.quartz.*;
+import org.springframework.stereotype.Service;
 
 /**
  * @program: idataecs
@@ -11,40 +14,71 @@ import org.springframework.stereotype.Repository;
  * @author: xumeng.zhao
  * @create: 2021-06-04 10:04
  */
+@Service
 public class JobScheduleQuartzImpl implements JobScheduleInterface {
 
 
     @Override
-    public CommonException createSchedule(MonitorConfigEntity monitorConfigEntity) {
-        String msg ="调度任务创建成功";
-
+    public CommonResult createSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler) {
+        CommonResult commonResult = new CommonResult();
+        String msg = "调度任务创建成功";
+        commonResult.setCode(ResultStatus.Success.getCode());
         try {
-            //TODO 引入调度框架实现功能
+            Trigger trigger = this.buildTrigger(monitorConfigEntity);
+            JobDetail jobDetail = this.buildJobDetail(monitorConfigEntity);
+            scheduler.scheduleJob(jobDetail, trigger);
 
         } catch (Exception e) {
             e.printStackTrace();
-
+            msg = e.getMessage();
+            commonResult.setCode(ResultStatus.fail.getCode());
+            commonResult.setE(msg);
         }
-        return null;
+        commonResult.setMsg(msg);
+        return commonResult;
     }
 
     @Override
-    public CommonException updateSchedule(MonitorConfigEntity monitorConfigEntity) {
+    public CommonResult updateSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler) {
         //TODO 引入调度框架实现功能
 
         return null;
     }
 
     @Override
-    public CommonException deleteSchedule(MonitorConfigEntity monitorConfigEntity) {
+    public CommonResult deleteSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler) {
         //TODO 引入调度框架实现功能
 
         return null;
     }
 
     @Override
-    public CommonException stopSchedule(MonitorConfigEntity monitorConfigEntity) {
+    public CommonResult stopSchedule(MonitorConfigEntity monitorConfigEntity, Scheduler scheduler) {
         //TODO 引入调度框架实现功能
         return null;
     }
+
+
+    public Trigger buildTrigger(MonitorConfigEntity me) {
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("* * * * * ?");
+
+        CronTrigger trigger = TriggerBuilder.newTrigger()
+                .forJob(JobKey.jobKey(me.getTableName(), "数仓测试组"))
+                .withIdentity(me.getTableName(), "数仓测试组")
+                .withSchedule(cronScheduleBuilder)
+                .startNow()
+                .build();
+        return trigger;
+    }
+
+    public JobDetail buildJobDetail(MonitorConfigEntity me) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("entity",me);
+
+        return JobBuilder.newJob(MonitorJob.class)
+                .usingJobData(jobDataMap)
+                .withIdentity(me.getTableName(), "数仓测试组")
+                .build();
+    }
+
 }

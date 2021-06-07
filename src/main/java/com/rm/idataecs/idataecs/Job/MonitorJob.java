@@ -25,6 +25,7 @@ public class MonitorJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         MonitorConfigEntity monitorConfigEntity = (MonitorConfigEntity) context.get("entity");
+        //TODO 接口提交 反插入逻辑
         System.out.println("jobDetail实例运行中");
 
 

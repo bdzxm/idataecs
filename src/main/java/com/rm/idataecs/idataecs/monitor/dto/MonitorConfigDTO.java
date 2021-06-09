@@ -25,7 +25,7 @@ public class MonitorConfigDTO {
     /**
      * 自定义sql
      */
-    private String sqlCheck;
+    private Object sqlCheck;
     /**
      * 时间 后端赋值
      */

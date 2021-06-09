@@ -60,7 +60,7 @@ public class JobScheduleQuartzImpl implements JobScheduleInterface {
 
 
     public Trigger buildTrigger(MonitorConfigEntity me) {
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("* * * * * ?");
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("0 0/1 * * * ?");
 
         CronTrigger trigger = TriggerBuilder.newTrigger()
                 .forJob(JobKey.jobKey(me.getTableName(), "数仓测试组"))
@@ -76,7 +76,7 @@ public class JobScheduleQuartzImpl implements JobScheduleInterface {
         jobDataMap.put("entity",me);
 
         return JobBuilder.newJob(MonitorJob.class)
-                .usingJobData(jobDataMap)
+                .setJobData(jobDataMap)
                 .withIdentity(me.getTableName(), "数仓测试组")
                 .build();
     }

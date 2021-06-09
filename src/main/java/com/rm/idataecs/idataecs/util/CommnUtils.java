@@ -67,8 +67,8 @@ public class CommnUtils {
      *
      * @return
      */
-    public static String getCurrentTime() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    public static String getCurrentTime(String pat) {
+        return new SimpleDateFormat(pat).format(new Date());
     }
 
 
@@ -90,5 +90,8 @@ public class CommnUtils {
      return requerSql;
 
     }
+
+
+
 
 }

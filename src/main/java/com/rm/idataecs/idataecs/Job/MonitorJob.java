@@ -28,12 +28,10 @@ public class MonitorJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         MonitorConfigEntity monitorConfigEntity = (MonitorConfigEntity) context.getMergedJobDataMap().get("entity");
-        System.out.println("shiti:"+monitorConfigEntity);
         //TODO 接口提交 反插入逻辑
-        System.out.println("jobDetail实例运行中");
+        System.out.println("jobDetail运行");
         JobKey key = context.getJobDetail().getKey();
         String sqlCheck = monitorConfigEntity.getSqlCheck();
-        System.out.println(sqlCheck);
         String[] sqls = JSON.parseObject(sqlCheck).get("sql").toString().split(";");
         String[] variates = JSON.parseObject(sqlCheck).get("variates").toString().split(";");
         //同一次调度用同一个时间戳

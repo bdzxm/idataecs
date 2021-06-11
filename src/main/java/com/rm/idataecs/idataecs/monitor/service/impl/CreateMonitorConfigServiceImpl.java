@@ -23,6 +23,7 @@ import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
  * @create: 2021-05-31 19:58
  */
 @Service
+@Transactional
 public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMonitorConfigMapper, MonitorConfigEntity> implements CreateMonitorConfigService {
 
 
@@ -51,11 +53,8 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
 
     @Override
     public CommonResult createOrUpdateMonitorConfig(MonitorConfigDTO mc) {
-
+        //调度器
         JobScheduleInterface scheduleImpl = jobScheduleImplFactory.getJobScheduleImpl();
-
-//        IdataEcsMesInterface mesImpl = idataEcsMesImplFactory.getIdataEcsMesImpl("upush");
-
         //参数审查
         CommonResult fcr = this.paramCheck(mc);
 
@@ -63,21 +62,15 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
             fcr.setCode(ResultStatus.fail.getCode());
             return fcr;
         }
-        String gc = JSONObject.toJSONString(mc.getGeneralCheck());
-        String sqlJson = JSONObject.toJSONString(mc.getSqlCheck());
-        mc.setGeneralCheck(gc);
-        mc.setSqlCheck(sqlJson);
-        mc.setTime(CommnUtils.getCurrentTime("yyyy-MM-dd HH:mm:ss"));
         MonitorConfigEntity monitorConfigEntity = this.init(mc);
-        //TODO 事务控制
-        this.save(monitorConfigEntity);
+
         CommonResult scr = new CommonResult(ResultStatus.Success.getCode(),"提交成功",monitorConfigEntity);
 
-        System.out.println(StringUtils.isBlank(monitorConfigEntity.getSqlCheck()));
-        System.out.println(monitorConfigEntity.getSqlCheck().length());
         if(StringUtils.isNotBlank(monitorConfigEntity.getSqlCheck())){
-
              scr = scheduleImpl.createSchedule(monitorConfigEntity, scheduler);
+        }
+        if(scr.getCode()==0){
+            this.save(monitorConfigEntity);
         }
 
         return scr;
@@ -90,17 +83,22 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
     }
 
     public MonitorConfigEntity init(MonitorConfigDTO mc) {
+        String gc = JSONObject.toJSONString(mc.getGeneralCheck());
+        String sqlJson = JSONObject.toJSONString(mc.getSqlCheck());
+        mc.setTime(CommnUtils.getCurrentTime("yyyy-MM-dd HH:mm:ss"));
         MonitorConfigEntity monitorConfigEntity = new MonitorConfigEntity();
         monitorConfigEntity.setId(mc.getId());
         monitorConfigEntity.setDt(mc.getDt());
         monitorConfigEntity.setTableName(mc.getTableName());
-        monitorConfigEntity.setGeneralCheck((String) mc.getGeneralCheck());
-        monitorConfigEntity.setSqlCheck((String) mc.getSqlCheck());
+        monitorConfigEntity.setGeneralCheck(gc);
+        monitorConfigEntity.setSqlCheck(sqlJson);
         monitorConfigEntity.setRepeatedCheck(mc.getRepeatedCheck());
         monitorConfigEntity.setNumCheck(mc.getNumCheckEnum().getCode());
         monitorConfigEntity.setIncrementCheck(mc.getIncrementCheckEnum().getCode());
         monitorConfigEntity.setStatus(1);
         monitorConfigEntity.setCreateTime(mc.getTime());
+        monitorConfigEntity.setCron(mc.getCron());
+        monitorConfigEntity.setLastModifyTime(mc.getTime());
         return monitorConfigEntity;
     }
 
@@ -113,6 +111,9 @@ public class CreateMonitorConfigServiceImpl extends ServiceImpl<CreateOrUpdateMo
      */
     public CommonResult paramCheck(MonitorConfigDTO monitorConfigDTO) {
         CommonResult commonResult = new CommonResult();
+        if (StringUtils.isNotBlank(monitorConfigDTO.getSqlCheck().toString())){
+            CommnUtils.requirePass((x)->StringUtils.isBlank(monitorConfigDTO.getCron()),monitorConfigDTO,commonResult,"运行时间规则不能为空,以idata为标准");
+        }
         //表名为空
         CommnUtils.requirePass((x) -> StringUtils.isBlank(x.getTableName()), monitorConfigDTO, commonResult, "表名不能为空;");
         //没有监控内容

@@ -28,4 +28,8 @@ public class RunRecordEntity {
 
     private String tableName;
 
+    private String variates;
+
+    private int checkFlag;
+
 }

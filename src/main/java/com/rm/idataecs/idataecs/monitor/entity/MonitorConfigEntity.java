@@ -29,6 +29,10 @@ public class MonitorConfigEntity {
 
     private String createTime;
 
+    private String cron;
+
+    private String lastModifyTime;
+
     /**
      * 启用状态 1是0否
      */

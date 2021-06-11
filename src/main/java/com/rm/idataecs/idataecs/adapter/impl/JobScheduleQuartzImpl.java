@@ -24,10 +24,12 @@ public class JobScheduleQuartzImpl implements JobScheduleInterface {
         String msg = "调度任务创建成功";
         commonResult.setCode(ResultStatus.Success.getCode());
         try {
+            //触发器
             Trigger trigger = this.buildTrigger(monitorConfigEntity);
+            //任务实例
             JobDetail jobDetail = this.buildJobDetail(monitorConfigEntity);
+            //提交调度
             scheduler.scheduleJob(jobDetail, trigger);
-
         } catch (Exception e) {
             e.printStackTrace();
             msg = e.getMessage();
@@ -60,7 +62,7 @@ public class JobScheduleQuartzImpl implements JobScheduleInterface {
 
 
     public Trigger buildTrigger(MonitorConfigEntity me) {
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("0 0/1 * * * ?");
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(me.getCron());
 
         CronTrigger trigger = TriggerBuilder.newTrigger()
                 .forJob(JobKey.jobKey(me.getTableName(), "数仓测试组"))

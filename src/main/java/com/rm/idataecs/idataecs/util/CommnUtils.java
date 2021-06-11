@@ -84,14 +84,11 @@ public class CommnUtils {
 
     }
 
-    public static boolean sqlParse(String sql){
-     boolean requerSql =false;
+    public static void sqlParse(String concatSql){
 
+        String[] sqls = concatSql.split(";");
+        //同步提交dataq 做解析，限制返回时间为5分钟，返回封装体
 
-
-
-
-     return requerSql;
 
     }
 

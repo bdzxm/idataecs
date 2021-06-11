@@ -35,15 +35,28 @@ public class MonitorJob implements Job {
         String sqlCheck = monitorConfigEntity.getSqlCheck();
         System.out.println(sqlCheck);
         String[] sqls = JSON.parseObject(sqlCheck).get("sql").toString().split(";");
-        RunRecordEntity runRecordEntity = new RunRecordEntity();
+        String[] variates = JSON.parseObject(sqlCheck).get("variates").toString().split(";");
+        //同一次调度用同一个时间戳
+        String currentTime = CommnUtils.getCurrentTime("yyyy-MM-dd HH:mm:ss");
+        /**
+         * {
+         *     "sql":"select count(1) as cnt  sum(total) as total_num from lucky_stock.t_warehouse_stock_detail ;select sum(total) as total_num_day from lucky_stock.t_warehouse_stock_detail_everyday ",
+         *     "variates":"cnt,total_num;total_num_day",
+         *     "exe":[{"cnt":"cnt>1000" },{"total_num,total_num_day":"total_num=total_num_day"}]
+         * }
+         */
+        for (int i = 0; i < sqls.length; i++) {
+            RunRecordEntity runRecordEntity = new RunRecordEntity();
 
-        for (String sql : sqls) {
             //模仿查询id
             runRecordEntity.setQueryId(System.currentTimeMillis());
-            runRecordEntity.setQueryTime(CommnUtils.getCurrentTime("yyyy-MM-dd HH:mm:ss"));
+            runRecordEntity.setQueryTime(currentTime);
             runRecordEntity.setTableName(key.getName());
+            runRecordEntity.setVariates(variates[i]);
             runRecord.insert(runRecordEntity);
+
         }
+
 
 
     }

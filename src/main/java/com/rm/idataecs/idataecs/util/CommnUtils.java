@@ -2,8 +2,12 @@ package com.rm.idataecs.idataecs.util;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.rm.idataecs.idataecs.test.dto.CommonResult;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -88,6 +92,25 @@ public class CommnUtils {
 
 
      return requerSql;
+
+    }
+
+
+    public static ScriptEngine getParseEngine( ){
+        ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+        return scriptEngineManager.getEngineByName("js");
+
+
+    }
+
+    public static  boolean  getLogicExpressionResult(ScriptEngine engine,String exe){
+        boolean eval =true;
+        try {
+            eval=(boolean)engine.eval(exe);
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        return eval;
 
     }
 

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import sun.jvm.hotspot.ui.tree.FloatTreeNodeAdapter;
 
 import javax.script.ScriptEngine;
 import java.util.*;
@@ -74,7 +75,7 @@ public class CheckSqlResult {
      * 报警控制
      * 检查满足一定条件的返回数据 是否应该报警
      * 返回条件：自定义sql查询返回值 非空，变量字段非空，sql_check != 1
-     * sql_check 字段用于标记当前数据是否被检测过
+     * sql_check 字段用于标记当前数据是否被检测过 =1是 已经被加入到缓存
      */
     @Scheduled(cron = "0 0/1 * * * ?")
     public void warner(){
@@ -118,10 +119,14 @@ public class CheckSqlResult {
             for (Map.Entry<String, Object> stringObjectEntry : exeSet) {
                 ScriptEngine parseEngine = CommnUtils.getParseEngine();
                 String[] vArr = stringObjectEntry.getKey().split(",");
-                log.error("vArr:{}",vArr);
+
                 Set<String> strings = stringStringMap.keySet();
-                boolean b = strings.containsAll(Arrays.asList(vArr));
-                System.out.println("结果："+b);
+               //检测全局缓存中包含本次表达式中的所有变量
+                if(!strings.containsAll(Arrays.asList(vArr))){
+                    log.error("全能局缓存为包含表达式全部变量"+Arrays.asList(vArr).toString()+",过本次执行");
+                    return;
+                }
+
                 for (String v : vArr) {
                     String queryData = stringStringMap.get(v);
                     log.error("变量:{},查询结果:{},表达式:{}",v,queryData,stringObjectEntry.getValue().toString());
@@ -129,6 +134,7 @@ public class CheckSqlResult {
                 }
                 boolean logicExpressionResult = CommnUtils.getLogicExpressionResult(parseEngine, stringObjectEntry.getValue().toString());
                 if(!logicExpressionResult){
+                    //报警处理
                     System.out.println(stringObjectEntry.getValue().toString()+":检测异常");
                 }
 
